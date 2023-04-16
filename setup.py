@@ -3,10 +3,14 @@ from setuptools import setup
 with open('requirements.txt') as f:
     install_requires = f.read().splitlines()
 
+with open('README.rst') as f:
+    long_description = f.read()
+
 setup(
     name='gptrim',
-    version='0.1.0',
-    description='A tool to trim the input of OpenAI GPT models.',
+    version='0.1.1',
+    description='Reduce the size of GPT inputs by 40-60% without losing most of the information.',
+    long_description=long_description,
     url='https://github.com/vlad-ds/gptrim',
     author='Vlad Gheorghe',
     author_email='vlad.datapro@gmail.com',

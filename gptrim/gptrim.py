@@ -25,7 +25,7 @@ WORDS_TO_INCLUDE = NEGATION_WORDS
 WORDS_TO_EXCLUDE = set(WORDS_TO_EXCLUDE) - set(WORDS_TO_INCLUDE)
 
 
-def gptrim(text: str,
+def trim(text: str,
            stemmer: str = "snowball") -> str:
 
     accepted_stemmers = ("snowball", "porter", "lancaster")
