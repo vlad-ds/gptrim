@@ -5,28 +5,30 @@ from nltk.stem import PorterStemmer, SnowballStemmer, LancasterStemmer
 nltk.download('punkt')
 nltk.download('stopwords')
 
-ARTICLES_PREPOSITIONS = [
+ARTICLES_PREPOSITIONS = {
+    "english" : [
         'the', 'a', 'an', 'in', 'on', 'at', 'for', 'to', 'of'
     ]
+}
 
-NEGATION_WORDS = ['no', 'nor', 'not', 'don', "don't", 'ain', 'aren',
-                  "aren't", 'couldn', "couldn't", 'didn', "didn't",
-                  'doesn', "doesn't", 'hadn', "hadn't", 'hasn',
-                  "hasn't", 'haven', "haven't", 'isn', "isn't",
-                  'mightn', "mightn't", 'mustn', "mustn't",
-                  'needn', "needn't", 'shan', "shan't", 'shouldn',
-                  "shouldn't", 'wasn', "wasn't", 'weren', "weren't",
-                  'won', "won't", 'wouldn', "wouldn't"]
-
-NLTK_STOPWORDS = stopwords.words("english")
-
-WORDS_TO_EXCLUDE = NLTK_STOPWORDS + ARTICLES_PREPOSITIONS
-WORDS_TO_INCLUDE = NEGATION_WORDS
-WORDS_TO_EXCLUDE = set(WORDS_TO_EXCLUDE) - set(WORDS_TO_INCLUDE)
-
+NEGATION_WORDS = {
+    "spanish": ['no', 'ni', 'nunca', 'jamas', 'tampoco', 'nadie', 'nada', 'ninguno', 'ninguna', 'ningunos', 'ningunas', 'ningun'],
+    "english": ['no', 'nor', 'not', 'don', "don't", 'ain', 'aren',
+    "aren't", 'couldn', "couldn't", 'didn', "didn't",
+    'doesn', "doesn't", 'hadn', "hadn't", 'hasn',
+    "hasn't", 'haven', "haven't", 'isn', "isn't",
+    'mightn', "mightn't", 'mustn', "mustn't",
+    'needn', "needn't", 'shan', "shan't", 'shouldn',
+    "shouldn't", 'wasn', "wasn't", 'weren', "weren't",
+    'won', "won't", 'wouldn', "wouldn't"]
+}
 
 def trim(text: str,
-           stemmer: str = "snowball") -> str:
+         stemmer: str = "snowball",
+         language: str = "english") -> str:
+
+    if language not in stopwords.fileids():
+        raise ValueError("Unsupported language")
 
     accepted_stemmers = ("snowball", "porter", "lancaster")
     if stemmer not in accepted_stemmers:
@@ -35,14 +37,17 @@ def trim(text: str,
     # merge contractions
     text = text.replace("'", "")
 
-    # tokenize words, keep uppercase
-    tokenized = [word for word in nltk.word_tokenize(text) if word.lower() not in WORDS_TO_EXCLUDE]
+    nltk_stopwords = stopwords.words(language)
+    words_to_exclude = set(nltk_stopwords + ARTICLES_PREPOSITIONS.get(language, [])) - set(NEGATION_WORDS.get(language,[]))
 
-    # stem words
+    # tokenize words, keep uppercase
+    tokenized = [word for word in nltk.word_tokenize(text) if word.lower() not in words_to_exclude]
+
+    #stem words
     if stemmer == "porter":
         stemmer = PorterStemmer()
     elif stemmer == "snowball":
-        stemmer = SnowballStemmer("english")
+        stemmer = SnowballStemmer(language)
     elif stemmer == "lancaster":
         stemmer = LancasterStemmer()
     stemmed = [stemmer.stem(word) for word in tokenized]
