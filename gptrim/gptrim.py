@@ -6,26 +6,72 @@ nltk.download('punkt')
 nltk.download('stopwords')
 
 ARTICLES_PREPOSITIONS = {
-    "english" : [
-        'the', 'a', 'an', 'in', 'on', 'at', 'for', 'to', 'of'
-    ]
+    "english": ['the', 'a', 'an', 'in', 'on', 'at', 'for', 'to', 'of']
 }
 
 NEGATION_WORDS = {
-    "spanish": ['no', 'ni', 'nunca', 'jamas', 'tampoco', 'nadie', 'nada', 'ninguno', 'ninguna', 'ningunos', 'ningunas', 'ningun'],
-    "english": ['no', 'nor', 'not', 'don', "don't", 'ain', 'aren',
-    "aren't", 'couldn', "couldn't", 'didn', "didn't",
-    'doesn', "doesn't", 'hadn', "hadn't", 'hasn',
-    "hasn't", 'haven', "haven't", 'isn', "isn't",
-    'mightn', "mightn't", 'mustn', "mustn't",
-    'needn', "needn't", 'shan', "shan't", 'shouldn',
-    "shouldn't", 'wasn', "wasn't", 'weren', "weren't",
-    'won', "won't", 'wouldn', "wouldn't"]
+    "spanish": [
+        'no',
+        'ni',
+        'nunca',
+        'jamas',
+        'tampoco',
+        'nadie',
+        'nada',
+        'ninguno',
+        'ninguna',
+        'ningunos',
+        'ningunas',
+        'ningun',
+    ],
+    "english": [
+        'no',
+        'nor',
+        'not',
+        'don',
+        "don't",
+        'ain',
+        'aren',
+        "aren't",
+        'couldn',
+        "couldn't",
+        'didn',
+        "didn't",
+        'doesn',
+        "doesn't",
+        'hadn',
+        "hadn't",
+        'hasn',
+        "hasn't",
+        'haven',
+        "haven't",
+        'isn',
+        "isn't",
+        'mightn',
+        "mightn't",
+        'mustn',
+        "mustn't",
+        'needn',
+        "needn't",
+        'shan',
+        "shan't",
+        'shouldn',
+        "shouldn't",
+        'wasn',
+        "wasn't",
+        'weren',
+        "weren't",
+        'won',
+        "won't",
+        'wouldn',
+        "wouldn't",
+    ],
 }
 
-def trim(text: str,
-         stemmer: str = "snowball",
-         language: str = "english") -> str:
+
+def trim(
+    text: str, stemmer: str = "snowball", language: str = "english"
+) -> str:
 
     if language not in stopwords.fileids():
         raise ValueError("Unsupported language")
@@ -38,12 +84,18 @@ def trim(text: str,
     text = text.replace("'", "")
 
     nltk_stopwords = stopwords.words(language)
-    words_to_exclude = set(nltk_stopwords + ARTICLES_PREPOSITIONS.get(language, [])) - set(NEGATION_WORDS.get(language,[]))
+    words_to_exclude = set(
+        nltk_stopwords + ARTICLES_PREPOSITIONS.get(language, [])
+    ) - set(NEGATION_WORDS.get(language, []))
 
     # tokenize words, keep uppercase
-    tokenized = [word for word in nltk.word_tokenize(text) if word.lower() not in words_to_exclude]
+    tokenized = [
+        word
+        for word in nltk.word_tokenize(text)
+        if word.lower() not in words_to_exclude
+    ]
 
-    #stem words
+    # stem words
     if stemmer == "porter":
         stemmer = PorterStemmer()
     elif stemmer == "snowball":
