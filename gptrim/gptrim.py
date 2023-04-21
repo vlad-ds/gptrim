@@ -1,3 +1,5 @@
+from typing import Optional
+
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer, SnowballStemmer, LancasterStemmer
@@ -70,14 +72,14 @@ NEGATION_WORDS = {
 
 
 def trim(
-    text: str, stemmer: str = "snowball", language: str = "english"
+    text: str, stemmer: Optional[str] = None, language: str = "english"
 ) -> str:
 
     if language not in stopwords.fileids():
         raise ValueError("Unsupported language")
 
     accepted_stemmers = ("snowball", "porter", "lancaster")
-    if stemmer not in accepted_stemmers:
+    if stemmer and stemmer not in accepted_stemmers:
         raise ValueError("Stemmer must be one of", accepted_stemmers)
 
     # merge contractions
@@ -89,27 +91,27 @@ def trim(
     ) - set(NEGATION_WORDS.get(language, []))
 
     # tokenize words, keep uppercase
-    tokenized = [
+    words = [
         word
         for word in nltk.word_tokenize(text)
         if word.lower() not in words_to_exclude
     ]
 
-    # stem words
-    if stemmer == "porter":
-        stemmer = PorterStemmer()
-    elif stemmer == "snowball":
-        stemmer = SnowballStemmer(language)
-    elif stemmer == "lancaster":
-        stemmer = LancasterStemmer()
-    stemmed = [stemmer.stem(word) for word in tokenized]
+    if stemmer:
+        if stemmer == "porter":
+            stemmer = PorterStemmer()
+        elif stemmer == "snowball":
+            stemmer = SnowballStemmer(language)
+        elif stemmer == "lancaster":
+            stemmer = LancasterStemmer()
+        words = [stemmer.stem(word) for word in words]
 
     # restore title_case and uppercase
     case_restored = []
-    for i, word in enumerate(stemmed):
-        if tokenized[i].istitle():
+    for i, word in enumerate(words):
+        if words[i].istitle():
             word = word.title()
-        elif tokenized[i].isupper():
+        elif words[i].isupper():
             word = word.upper()
         case_restored.append(word)
 
