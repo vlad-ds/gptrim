@@ -74,7 +74,8 @@ NEGATION_WORDS = {
 
 
 def trim(
-    text: str, stemmer: Optional[str] = None, language: str = "english"
+    text: str, stemmer: Optional[str] = None, language: str = "english", remove_spaces: bool = True,
+        remove_stopwords: bool = True
 ) -> str:
 
     if language not in stopwords.fileids():
@@ -87,17 +88,16 @@ def trim(
     # merge contractions
     text = text.replace("'", "").replace("’", "")
 
-    nltk_stopwords = stopwords.words(language)
-    words_to_exclude = set(
-        nltk_stopwords + ARTICLES_PREPOSITIONS.get(language, [])
-    ) - set(NEGATION_WORDS.get(language, []))
-
     # tokenize words, keep uppercase
-    tokenized = [
-        word
-        for word in nltk.word_tokenize(text)
-        if word.lower() not in words_to_exclude
-    ]
+    tokenized = nltk.word_tokenize(text)
+
+    if remove_stopwords:
+        nltk_stopwords = stopwords.words(language)
+        words_to_exclude = set(
+            nltk_stopwords + ARTICLES_PREPOSITIONS.get(language, [])
+        ) - set(NEGATION_WORDS.get(language, []))
+
+        tokenized = [word for word in tokenized if word.lower() not in words_to_exclude]
 
     words = tokenized
 
@@ -110,15 +110,18 @@ def trim(
             stemmer = LancasterStemmer()
         words = [stemmer.stem(word) for word in tokenized]
 
-    # restore title_case and uppercase
-    case_restored = []
-    for i, word in enumerate(words):
-        if tokenized[i].istitle():
-            word = word.title()
-        elif tokenized[i].isupper():
-            word = word.upper()
-        case_restored.append(word)
+        # restore title_case and uppercase after stemming
+        case_restored = []
+        for i, word in enumerate(words):
+            if tokenized[i].istitle():
+                word = word.title()
+            elif tokenized[i].isupper():
+                word = word.upper()
+            case_restored.append(word)
+
+        words = case_restored
 
     # remove spaces
-    trimmed = "".join(case_restored)
+    join_str = "" if remove_spaces else " "
+    trimmed = join_str.join(words)
     return trimmed
