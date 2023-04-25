@@ -1,3 +1,4 @@
+import re
 from typing import Optional
 
 import nltk
@@ -75,8 +76,7 @@ NEGATION_WORDS = {
 
 def trim(
     text: str, stemmer: Optional[str] = None, language: str = "english", remove_spaces: bool = True,
-        remove_stopwords: bool = True
-) -> str:
+        remove_stopwords: bool = True, remove_punctuation: bool = False) -> str:
 
     if language not in stopwords.fileids():
         raise ValueError("Unsupported language")
@@ -87,6 +87,10 @@ def trim(
 
     # merge contractions
     text = text.replace("'", "").replace("’", "")
+
+    # remove punctuation
+    if remove_punctuation:
+        text = re.sub(r'[.,\'\"?!;:-]', '', text)
 
     # tokenize words, keep uppercase
     tokenized = nltk.word_tokenize(text)
