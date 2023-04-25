@@ -8,7 +8,7 @@ with open('README.rst') as f:
 
 setup(
     name='gptrim',
-    version='0.1.4',
+    version='0.1.5',
     description='Reduce the size of GPT inputs by 40-60% without losing most of the information.',
     long_description=long_description,
     url='https://github.com/vlad-ds/gptrim',
