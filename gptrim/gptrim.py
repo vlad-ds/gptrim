@@ -1,5 +1,5 @@
 import re
-from typing import Optional
+from typing import Optional, List
 
 import nltk
 from nltk.corpus import stopwords
@@ -73,6 +73,8 @@ NEGATION_WORDS = {
     ],
 }
 
+PUNCTUATION = [".", ",", "'", '"', "!", "?", ";", ":", "-"]
+
 
 def trim(
     text: str, stemmer: Optional[str] = None, language: str = "english", remove_spaces: bool = True,
@@ -86,14 +88,13 @@ def trim(
         raise ValueError("Stemmer must be one of", accepted_stemmers)
 
     # merge contractions
-    text = text.replace("'", "").replace("’", "")
-
-    # remove punctuation
-    if remove_punctuation:
-        text = re.sub(r'[.,\'\"?!;:-]', '', text)
+    text: str = text.replace("'", "").replace("’", "")
 
     # tokenize words, keep uppercase
-    tokenized = nltk.word_tokenize(text)
+    tokenized: List = nltk.word_tokenize(text)
+
+    if remove_punctuation:
+        tokenized = [word for word in tokenized if word not in PUNCTUATION]
 
     if remove_stopwords:
         nltk_stopwords = stopwords.words(language)
@@ -127,5 +128,9 @@ def trim(
 
     # remove spaces
     join_str = "" if remove_spaces else " "
-    trimmed = join_str.join(words)
+    trimmed: str = join_str.join(words).strip()
+    if not remove_punctuation:
+        # this is a hack to remove spaces before punctuation
+        trimmed = re.sub(r"\s([?.!,:;])", r"\1", trimmed)
+
     return trimmed
